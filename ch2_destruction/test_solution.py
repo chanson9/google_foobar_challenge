@@ -1,4 +1,4 @@
-"""Unit Tests for foo.bar LAMB Challenge"""
+"""Unit Tests for foo.bar GEARS Challenge"""
 from unittest import TestCase
 
 from solution import solution
