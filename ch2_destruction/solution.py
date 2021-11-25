@@ -19,10 +19,9 @@ def solution(pegs):
 
     iPeg = 0
     radius_list = []
-    # loop over all potential radius options (half of the peg distance) 
-    # finding the first peg
+    # loop through all the pegs
     while iPeg < len(pegs) - 1:
-        #create a list of numbers from 1 to half of the first gear position.
+        #create a list of numbers from 1 to half of the gear position.
         list_half = pegs[iPeg+1]/2
         x = 0
         radius_options = []
@@ -31,6 +30,7 @@ def solution(pegs):
             radius_options.append(x)
             x = x + 1
 
+        # if we're on the first peg, get radius of pegs 1 & 2
         if iPeg == 0:
             for i in radius_options:
                 if (pegs[iPeg+1] - pegs[iPeg] - i) in seen:
@@ -40,6 +40,7 @@ def solution(pegs):
                 else:
                     seen.append(i)
             iPeg = iPeg + 1
+        # since we already know the 2nd radius, calculate up to n radius
         else:
             prev_radius = radius_list[iPeg]
             radius_list.append( pegs[iPeg+1] - (pegs[iPeg] +  prev_radius) )
@@ -50,6 +51,7 @@ def solution(pegs):
     radius_dif = radius_list[0] - radius_list[len(radius_list)-1]
     if radius_dif * 2 == radius_list[0]:
         # returns list of two positive integers representing the num and denom of the first gear's radius
+        # stub out 1 for second value...figure that out later
         return [radius_list[0], 1]
     else:
         # returns list of -1, -1
