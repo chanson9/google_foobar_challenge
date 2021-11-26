@@ -12,3 +12,7 @@ class TryTesting(TestCase):
     def test_two(self):
         answer = solution([4, 30, 50])
         self.assertEqual(answer, [12,1])
+
+    def test_three(self):
+        answer = solution([4, 14])
+        self.assertEqual(answer, [20,3])

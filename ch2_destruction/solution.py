@@ -1,62 +1,69 @@
-"""Google foo.bar challenge 2 Gears of Destruction solution"""
+"""Google foo.bar challenge 2 Gearing Up For Destruction solution"""
 
+# The list pegs will be given sorted in ascending order and 
+# will contain at least 2 and no more than 20 distinct positive integers, 
+# all between 1 and 10000 inclusive.
 
-def solution(pegs):
-    """pegs represents the location of each peg along the support beam
+from fractions import Fraction  
+
+"""pegs represents the location of each peg along the support beam
     Your goal is to build a system where the last gear 
     rotates at twice the rate (in revolutions per minute, or rpm) of the first gear"""
+def solution(pegs):
+    # if no list is found or there is only 1 peg, return [-1, -1]
+    if ((not pegs) or len(pegs) == 1):
+        return [-1,-1]
 
-#For example, if the pegs are placed at [4, 30, 50], 
-# then the first gear could have a radius of 12, 
-# the second gear could have a radius of 14, 
-# and the last one a radius of 6. 
-# Thus, the last gear would rotate twice as fast as the first one. 
-# In this case, pegs would be [4, 30, 50] and solution(pegs) should return [12, 1].
+    # the solution is different if there are an even or odd # of pegs
+    even = False
+    if (len(pegs)%2==0):
+        even = True
 
-# first calculate the possible sums of 2 numbers
-# when added with the first gear placement which add up to the 2nd gear placement
-# 4 + (12+14) = 30...we know 4 and 30.  find 12 + 14
+    # grab the # of pegs
+    num_pegs = len(pegs)
+    first_radius = Fraction(0)
 
-    iPeg = 0
-    radius_list = []
-    # loop through all the pegs
-    while iPeg < len(pegs) - 1:
-        #create a list of numbers from 1 to half of the gear position.
-        list_half = pegs[iPeg+1]/2
-        x = 0
-        radius_options = []
-        seen = []
-        while x < list_half:
-            radius_options.append(x)
-            x = x + 1
-
-        # if we're on the first peg, get radius of pegs 1 & 2
-        if iPeg == 0:
-            for i in radius_options:
-                if (pegs[iPeg+1] - pegs[iPeg] - i) in seen:
-                    radius_list.append(pegs[iPeg+1] - pegs[iPeg] - i)  # radius 1
-                    radius_list.append(i)  # radius 2
-                    break
-                else:
-                    seen.append(i)
-            iPeg = iPeg + 1
-        # since we already know the 2nd radius, calculate up to n radius
-        else:
-            prev_radius = radius_list[iPeg]
-            radius_list.append( pegs[iPeg+1] - (pegs[iPeg] +  prev_radius) )
-            iPeg = iPeg + 1
-
-    # ensure the last gear turns at twice the rpm of the first gear
-    # calculate the difference between the first and last radius to check that it is double.
-    radius_dif = radius_list[0] - radius_list[len(radius_list)-1]
-    if radius_dif * 2 == radius_list[0]:
-        # returns list of two positive integers representing the num and denom of the first gear's radius
-        # stub out 1 for second value...figure that out later
-        return [radius_list[0], 1]
+    # since the last gear spins at twice the rpm: that's the 2*r1
+    # the equation to find the radius based on 2 pegs is P1 - (P0 / R1) = 2R1
+    # by reducing this further, we get P1 - P0 = 3R1
+    # therefore the radius of the last peg (R1) is R1 = P1-P0 / 3
+    # the radius of the first peg is twice R1, which is 2*R1
+    # we have different solutions depending on whether there are an even or odd # pegs
+    if even:
+        distance = calcDistance(num_pegs, pegs, even)
+        first_radius = Fraction(2 * (float(distance)/3)).limit_denominator()
     else:
-        # returns list of -1, -1
-        return [-1, -1]
+        distance = calcDistance(num_pegs, pegs, even)
+        first_radius = Fraction(2 * distance).limit_denominator()
 
-def calc_rpm(input_radius):
-    rpm = input_radius
-    return rpm
+    # all radii have to be greater than 1, so make sure the first radius is >=2
+    if first_radius < 2:
+        return [-1,-1]
+
+    current_radius = first_radius
+    for iPeg in range(0, num_pegs-2):
+        center_dist = pegs[iPeg+1] - pegs[iPeg]
+        next_radius = center_dist - current_radius
+        if (current_radius < 1 or next_radius < 1):
+            return [-1,-1]
+        else:
+            current_radius = next_radius
+
+    # return numerator and denominator of the first radius
+    return [first_radius.numerator, first_radius.denominator]
+
+""" calculate the distance between pegs for input to radius calculation """
+def calcDistance(num_pegs, pegs, even):
+    # if it's even, just take the total distance between last and first pegs
+    if even:
+        dist = pegs[num_pegs - 1] - pegs[0]
+    # if it's odd, take the negative total of distance between first and last pegs
+    else:
+        dist = (- pegs[0] - pegs[num_pegs - 1]) 
+
+    # if we have more than 2 pegs, iterate over the remaining pegs computing the distance
+    if (num_pegs > 2):
+        for iPeg in range(1, num_pegs-1):
+            dist += 2 * (-1)**(iPeg+1) * pegs[iPeg]
+    
+    return dist
